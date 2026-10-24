@@ -16,7 +16,7 @@ object CallNotifier {
             setSound(
                 Settings.System.DEFAULT_RINGTONE_URI,
                 AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIC).build()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
             )
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 900, 500, 900, 500, 900)
