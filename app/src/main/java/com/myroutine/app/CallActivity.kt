@@ -98,7 +98,7 @@ class CallActivity : Activity() {
 
             player = MediaPlayer().apply {
                 setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIC).build())
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
                 setDataSource(this@CallActivity, uri)
                 isLooping = true
                 prepare(); start()
