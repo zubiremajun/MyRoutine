@@ -11,10 +11,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowInsets
 import android.webkit.JavascriptInterface
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 
 class MainActivity : Activity() {
     private lateinit var web: WebView
@@ -63,8 +65,19 @@ class MainActivity : Activity() {
             settings.domStorageEnabled = true
             settings.databaseEnabled = true
             settings.allowFileAccess = true
-            webViewClient = WebViewClient()
+            webViewClient = object : WebViewClient() {
+                // Without this, a WebView renderer crash (common on low-RAM phones)
+                // takes the whole app down instead of just the page. We recover by
+                // rebuilding the screen instead of letting Android kill the app.
+                override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+                    Toast.makeText(this@MainActivity, "Reloading…", Toast.LENGTH_SHORT).show()
+                    recreate()
+                    return true
+                }
+            }
             webChromeClient = object : WebChromeClient() {
+                // Without this, <input type="file"> (banner / ringtone upload) does
+                // nothing at all when tapped inside a WebView.
                 override fun onShowFileChooser(
                     view: WebView?, callback: ValueCallback<Array<Uri>>?, params: FileChooserParams?
                 ): Boolean {
