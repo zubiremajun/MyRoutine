@@ -1,6 +1,7 @@
 package com.myroutine.app
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Intent
 import android.media.AudioAttributes
@@ -121,6 +122,14 @@ class MainActivity : Activity() {
     private fun askPermissions() {
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != 0)
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        if (Build.VERSION.SDK_INT >= 31) {
+            val am = getSystemService(AlarmManager::class.java)
+            if (!am.canScheduleExactAlarms()) {
+                try {
+                    startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
+                } catch (e: Exception) {}
+            }
+        }
         if (Build.VERSION.SDK_INT >= 34) {
             val nm = getSystemService(NotificationManager::class.java)
             if (!nm.canUseFullScreenIntent()) {
