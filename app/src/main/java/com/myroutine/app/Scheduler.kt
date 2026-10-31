@@ -42,9 +42,17 @@ object Scheduler {
             if (allow != null) {
                 var guard = 0
                 while (jsDow(cal) !in allow && guard < 8) { cal.add(Calendar.DAY_OF_YEAR, 1); guard++ }
-                if (guard >= 8) continue
+                if (guard >= 8) continue // malformed "days" list, skip safely
             }
-            am.setAlarmClock(AlarmManager.AlarmClockInfo(cal.timeInMillis, show), receiverPi(c, i))
+            // setAlarmClock is exact and survives Doze, but on Android 12+ it throws
+            // SecurityException if the person hasn't granted the exact-alarm permission
+            // (or it's been revoked). Fall back to a regular alarm instead of crashing;
+            // MainActivity also prompts the person to grant the exact permission.
+            try {
+                am.setAlarmClock(AlarmManager.AlarmClockInfo(cal.timeInMillis, show), receiverPi(c, i))
+            } catch (e: SecurityException) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, receiverPi(c, i))
+            }
         }
         Store.setCount(c, items.length())
     }
